@@ -12,6 +12,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND
 class LoginController extends grails.plugin.springsecurity.LoginController implements GrailsConfigurationAware {
 
     def mailService
+    def loginService
 
 //    def index() {
 //
@@ -40,14 +41,10 @@ class LoginController extends grails.plugin.springsecurity.LoginController imple
             return
         }
 
-        try {
-            UserRole.withTransaction { status ->
-                def role = Role.findByAuthority('ROLE_MEMB')
-                def user1 = user.save()
-                UserRole.create(user1, role,true)
-            }
+        def result = loginService.register(user)
 
-        } catch (ValidationException e) {
+        if(result.fail){
+            flash.message = result.fail
             respond user.errors, view:'signin'
             return
         }
@@ -55,13 +52,6 @@ class LoginController extends grails.plugin.springsecurity.LoginController imple
         assert UserRole.findByUser(user)
         flash.message = message(code: 'default.created.message', args: [message(code: 'user.label', default: 'User'), user.username])
         redirect action: 'auth'
-//        request.withFormat {
-//            form multipartForm {
-//                flash.message = message(code: 'default.created.message', args: [message(code: 'user.label', default: 'User'), user.username])
-//                redirect user
-//            }
-//            '*' { respond user, [status: CREATED] }
-//        }
     }
 
     def resetPassword(){
@@ -73,49 +63,15 @@ class LoginController extends grails.plugin.springsecurity.LoginController imple
      * @return
      */
     def resetPwd(){
-//        println params
-        try {
-            User.withTransaction {
-                def user = auth.User.findByUsernameAndEmail(params.username, params.email)
-                if(!user) throw new Exception("帳號驗證錯誤，信件無法寄出")
-                // 產生8位數隨機密碼
-                def allChars = ['A'..'Z', 'a'..'z', '0'..'9' ].flatten() - ['O', '0', 'l', '1', 'I' ]
-                def newPassword = RandomStringUtils.random(8, allChars as char[])
+        def result = loginService.reserPassword(params)
 
-                user.password = newPassword
-                user.dateChgPwd = new Date()
-                user.save(flush:true)
-
-                mailService.sendMail {
-                    to user.email
-                    subject '密碼重置提醒'
-                    html """
-                    <h1>親愛的會員${user.username}您好</h1>
-                    <p>您在以下時間 ${new Date().toString()}成功重置您的登入密碼。新的密碼是:</p>
-                    <p>${newPassword}</p>
-                    <p>請盡速登入並更新您的密碼！</p>
-                    <p>如有任何問題，請聯繫客服人員，謝謝</p>
-                    """
-                }
-            }
-
+        if(result.fail){
+            flash.message = result.fail
+        } else {
             flash.message = g.message(code: 'default.mail.sent.message')
+        }
 
-        }
-        catch (ValidationException e) {
-            println e
-            flash.message = "使用者資料有誤，請聯繫客服人員處理"
-
-        }
-        catch (Exception e0) {
-            println e0
-            flash.message = e0.toString()
-        }
-        finally {
-
-        }
         redirect action: 'auth'
-
 
     }
 
@@ -128,10 +84,16 @@ class LoginController extends grails.plugin.springsecurity.LoginController imple
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'user.label', default: 'User'), params.id])
-                redirect action: "index", method: "GET"
+                redirect action: "auth", method: "GET"
             }
             '*'{ render status: NOT_FOUND }
         }
+    }
+
+    def exceptionHandler(Exception e0){
+        println e0
+        flash.message = g.message(code: 'default.error.handle.message')
+        redirect action: 'auth'
     }
 
 }
