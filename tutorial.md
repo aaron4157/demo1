@@ -70,6 +70,12 @@ grails.plugin.springsecurity.dao.reflectionSaltSourceProperty = 'username'
 `$npm install sweetalert2`
 
 ### Taglib
+Grails 3 版本以後，使用標籤`<f:all>`取代模板`_form.gsp`；欲自訂表單版面，則在`views` 資料夾底下建立欄位單元模板，路徑如下
+`views/_fields/default/_wrapper.gsp
+views/_fields/string/_wrapper.gsp 
+views/_fields/date/_wrapper.gsp`
+
+
 整合bootstrap功能，成為網頁的工具箱
 
 ## 參考資料
@@ -79,4 +85,5 @@ grails.plugin.springsecurity.dao.reflectionSaltSourceProperty = 'username'
 * [H2 file-db](https://www.baeldung.com/h2-embedded-db-data-storage)
 * [Grails mail](https://www.djamware.com/post/58b50fee80aca736bb5e4369/grails-3-send-email-example#grails-mail-plugin)
 * [Sweetalert2](https://sweetalert2.github.io/)
+* [Grails field tag](https://grails-fields-plugin.github.io/grails-fields/latest/ref/Tags/all.html)
 * [網頁模板](https://themewagon.com/?swoof=1&post_type=product&pa_frameworks=bootstrap-4&paged=1&pa_price=free)
