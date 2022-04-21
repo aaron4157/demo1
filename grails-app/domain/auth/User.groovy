@@ -19,6 +19,7 @@ class User {
     boolean accountExpired = false
     boolean accountLocked = false
     boolean passwordExpired = false
+    String avatar
 
     Set<Role> getAuthorities() {
         (UserRole.findAllByUser(this) as List<UserRole>)*.role as Set<Role>
@@ -37,6 +38,7 @@ class User {
         password     (nullable: false, blank: false, password: true)
         email       (nullable: true, blank: false, maxSize: 1024, email: true)
         dateChgPwd  (nullable: true)
+        avatar (nullable: true)
     }
 
     static transients = ['authorities']

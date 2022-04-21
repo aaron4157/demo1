@@ -75,6 +75,11 @@ Grails 3 版本以後，使用標籤`<f:all>`取代模板`_form.gsp`；欲自訂
 views/_fields/string/_wrapper.gsp 
 views/_fields/date/_wrapper.gsp`
 
+### 網頁模板的修改
+在不使用gulp.js管理連端資源的情況下，要做以下調整
+1. vendor.bundle.base.js 上移到head區域，在網頁編譯早期就引入 jQuery
+1. typicons.css 上移到head 區域，及時載入字型
+1. dashboard.js 引用的JSON來源，改由home/dataFetch提供
 
 整合bootstrap功能，成為網頁的工具箱
 
